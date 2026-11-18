@@ -1,0 +1,6 @@
+<?php
+require 'config/database.php';require 'config/helpers.php';
+if($_SERVER['REQUEST_METHOD']==='POST'){$email=trim($_POST['email']??'');$pass=$_POST['password']??'';$s=$conn->prepare("SELECT id,name,email,password,role FROM users WHERE email=? LIMIT 1");$s->bind_param('s',$email);$s->execute();$u=$s->get_result()->fetch_assoc();if($u&&password_verify($pass,$u['password'])){session_regenerate_id(true);unset($u['password']);$_SESSION['user']=$u;flash('Login berhasil.');redirect('index.php');}else flash('Email atau password salah.','danger');}
+$page_title='Login';include 'includes/header.php';?>
+<div class="row justify-content-center"><div class="col-md-6 col-lg-5"><div class="card p-4 shadow-sm"><h1 class="h4 mb-3">Login</h1><form method="post"><label class="form-label">Email</label><input class="form-control mb-3" type="email" name="email" required><label class="form-label">Password</label><input class="form-control mb-3" type="password" name="password" required><button class="btn btn-success w-100">Masuk</button></form><p class="small mt-3 mb-0">Belum punya akun? <a href="register.php">Daftar</a></p></div></div></div>
+<?php include 'includes/footer.php';?>

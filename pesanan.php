@@ -1,0 +1,7 @@
+<?php
+require 'config/database.php';require 'config/helpers.php';
+if(empty($_SESSION['user'])){flash('Silakan login.','warning');redirect('login.php');}
+$id=(int)($_GET['id']??0);$uid=(int)$_SESSION['user']['id'];$s=$conn->prepare("SELECT * FROM orders WHERE id=? AND user_id=?");$s->bind_param('ii',$id,$uid);$s->execute();$order=$s->get_result()->fetch_assoc();if(!$order){http_response_code(404);die('Pesanan tidak ditemukan.');}
+$s=$conn->prepare("SELECT * FROM order_items WHERE order_id=?");$s->bind_param('i',$id);$s->execute();$items=$s->get_result();$page_title='Pesanan';include 'includes/header.php';?>
+<h1 class="h3">Pesanan berhasil dibuat</h1><div class="alert alert-success">Terima kasih! Pesanan #<?=$id?> telah tersimpan.</div><p><b>Status:</b> <?=e($order['status'])?></p><p><b>Penerima:</b> <?=e($order['recipient'])?> — <?=e($order['phone'])?></p><p><b>Alamat:</b> <?=nl2br(e($order['address']))?></p><table class="table"><thead><tr><th>Produk</th><th>Jumlah</th><th>Subtotal</th></tr></thead><tbody><?php while($it=$items->fetch_assoc()):?><tr><td><?=e($it['product_name'])?></td><td><?=$it['qty']?></td><td><?=rupiah($it['subtotal'])?></td></tr><?php endwhile;?></tbody></table><h4>Total: <?=rupiah($order['total'])?></h4><a class="btn btn-success" href="index.php">Kembali belanja</a>
+<?php include 'includes/footer.php';?>
